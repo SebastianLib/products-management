@@ -4,7 +4,7 @@ import { api } from "../config/api";
 
 
 interface CategoryProps {
-    isLoading: true,
+    isLoading: boolean,
     categories: Category[],
     error: boolean,
 }
@@ -20,6 +20,7 @@ export const getAllCategories = createAsyncThunk<Category[], void>(
       }
     }
   );
+
   
 
 const initialState: CategoryProps = {
@@ -30,25 +31,24 @@ const initialState: CategoryProps = {
 
 const categoriesSlice = createSlice({
     name: "categories",
-    initialState: {
-      data: [] as Category[],
-      isLoading: false,
-      error: null as string | null,
-    },
+    initialState: initialState,
     reducers: {},
     extraReducers: (builder) => {
       builder
         .addCase(getAllCategories.pending, (state) => {
           state.isLoading = true;
-          state.error = null;
+          state.error = false;
         })
         .addCase(getAllCategories.fulfilled, (state, action) => {
           state.isLoading = false;
-          state.data = action.payload;
+          state.categories = action.payload;
         })
         .addCase(getAllCategories.rejected, (state, action) => {
           state.isLoading = false;
-          state.error = action.payload as string;
+          state.error = true;
         });
     },
   });
+
+
+  export default categoriesSlice.reducer;

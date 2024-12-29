@@ -1,11 +1,10 @@
-import { Box, Button, Paper, Stack, TextField, Typography } from "@mui/material";
+import { Box, Button, FormControl, InputLabel, MenuItem, Paper, Select, Stack, TextField, Typography } from "@mui/material";
 import { SubmitHandler, useForm } from "react-hook-form";
-import {
-  createProductDefaultValues,
-  createProductFormSchema,
-  CreateProductSchema,
-} from "../../schemas/CreateProductSchema";
+import { createProductDefaultValues, createProductFormSchema, CreateProductSchema } from "../../schemas/CreateProductSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "../../redux/store";
+import { createProduct } from "../../redux/productSlice";
 
 const CreateProduct = () => {
   const {
@@ -18,9 +17,11 @@ const CreateProduct = () => {
     resolver: zodResolver(createProductFormSchema),
     defaultValues: createProductDefaultValues,
   });
+  const dispatch = useDispatch<AppDispatch>();
+  const { categories } = useSelector((state: RootState) => state.category);
 
   const onSubmit: SubmitHandler<CreateProductSchema> = (data) => {
-    alert(JSON.stringify(data, null, 2));
+    dispatch(createProduct(data)); 
   };
 
   return (
@@ -36,7 +37,7 @@ const CreateProduct = () => {
         flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
-        gap: "1rem"
+        gap: "1rem",
       }}
     >
       <TextField
@@ -61,7 +62,7 @@ const CreateProduct = () => {
         }}
       />
       <TextField
-        {...register("price", { valueAsNumber: true })} 
+        {...register("price", { valueAsNumber: true })}
         label="Price"
         type="number"
         helperText={errors.price?.message}
@@ -71,8 +72,8 @@ const CreateProduct = () => {
         }}
       />
       <TextField
-        {...register("quantity", { valueAsNumber: true })} 
-        label="quantity"
+        {...register("quantity", { valueAsNumber: true })}
+        label="Quantity"
         type="number"
         helperText={errors.quantity?.message}
         error={!!errors.quantity}
@@ -80,7 +81,32 @@ const CreateProduct = () => {
           width: "100%",
         }}
       />
-        <Button variant="contained" color="primary" onClick={handleSubmit(onSubmit)}>
+      <FormControl fullWidth error={!!errors.categoryId}>
+        <InputLabel id="category-select-label">Category</InputLabel>
+        <Select
+          {...register("categoryId", { valueAsNumber: true })}
+          labelId="category-select-label"
+          id="category-select"
+          defaultValue=""
+          sx={{
+            width: "100%",
+          }}
+        >
+          {categories.map((category) => (
+            <MenuItem key={category.id} value={category.id}>
+              {category.name}
+            </MenuItem>
+          ))}
+        </Select>
+        <Typography variant="caption" color="error">
+          {errors.categoryId?.message}
+        </Typography>
+      </FormControl>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={handleSubmit(onSubmit)}  // Triggering form submission
+      >
         Submit
       </Button>
     </Box>
